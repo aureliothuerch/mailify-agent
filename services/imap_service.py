@@ -30,8 +30,8 @@ class iCloudIMAPService:
                 pass
             self.mail = None
 
-    def fetch_unread_email(self) -> dict | None:
-        """Fetches the oldest unread email and returns it in structured form."""
+    def fetch_unread_emails(self) -> list[dict]:
+        """Fetches all unread emails from the inbox, oldest first."""
         try:
             self.connect()
             self.mail.select("inbox")
@@ -41,45 +41,41 @@ class iCloudIMAPService:
 
             if not mail_ids:
                 print("[IMAP] No unread emails in the inbox.")
-                return None
+                return []
 
-            target_id = mail_ids[0]
-            status, data = self.mail.fetch(target_id, '(RFC822)')
-
-            raw_content = data[0][1]
-            msg = email.message_from_bytes(raw_content)
-
-            subject, encoding = decode_header(msg["Subject"])[0]
-            if isinstance(subject, bytes):
-                subject = subject.decode(encoding or "utf-8", errors="ignore")
-
-            sender = msg.get("From")
-
-            body = ""
-            if msg.is_multipart():
-                for part in msg.walk():
-                    content_type = part.get_content_type()
-                    if content_type == "text/plain":
-                        payload = part.get_payload(decode=True)
-                        body = payload.decode(errors="ignore")
-                        break
-            else:
-                body = msg.get_payload(decode=True).decode(errors="ignore")
-
-            print(f"[IMAP] Successfully loaded: '{subject}'")
-
-            return {
-                "id": target_id.decode(),
-                "sender": sender,
-                "subject": subject,
-                "body": body.strip()
-            }
+            emails = [self._parse_message(mid, self.mail.fetch(mid, '(RFC822)')[1][0][1])
+                      for mid in mail_ids]
+            print(f"[IMAP] Loaded {len(emails)} unread email(s).")
+            return emails
 
         except Exception as e:
-            print(f"[IMAP] Error fetching the mail: {e}")
-            return None
+            print(f"[IMAP] Error fetching mails: {e}")
+            return []
         finally:
             self.disconnect()
+
+    def _parse_message(self, mail_id, raw_content) -> dict:
+        msg = email.message_from_bytes(raw_content)
+
+        subject, encoding = decode_header(msg["Subject"])[0]
+        if isinstance(subject, bytes):
+            subject = subject.decode(encoding or "utf-8", errors="ignore")
+
+        body = ""
+        if msg.is_multipart():
+            for part in msg.walk():
+                if part.get_content_type() == "text/plain":
+                    body = part.get_payload(decode=True).decode(errors="ignore")
+                    break
+        else:
+            body = msg.get_payload(decode=True).decode(errors="ignore")
+
+        return {
+            "id": mail_id.decode(),
+            "sender": msg.get("From"),
+            "subject": subject,
+            "body": body.strip()
+        }
 
     def upload_draft(self, recipient: str, subject: str, text_content: str):
         """Creates a real email in the iCloud 'Drafts' folder."""
