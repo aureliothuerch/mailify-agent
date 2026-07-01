@@ -37,6 +37,10 @@ The graph is defined in [`agents/mail_graph.py`](agents/mail_graph.py). A condit
 edge routes only `IMPORTANT` mail to the drafting node; everything else terminates
 early to save compute.
 
+The compiled LangGraph, rendered straight from the code with `python render_graph.py`:
+
+![Agent graph](graph.png)
+
 ## Features
 
 - **Fully offline inference** — models run through a local Ollama server (`localhost:11434`).
