@@ -12,7 +12,7 @@ class iCloudIMAPService:
 
         if not self.email_address or not self.app_password:
             raise ValueError(
-                "❌ ERROR: ICLOUD_EMAIL or ICLOUD_APP_PASSWORD was not set in the terminal!\n"
+                "ERROR: ICLOUD_EMAIL or ICLOUD_APP_PASSWORD was not set in the terminal!\n"
                 "Use: export ICLOUD_EMAIL='your@mail.com' && export ICLOUD_APP_PASSWORD='xxxx-xxxx-xxxx-xxxx'"
             )
 
@@ -101,7 +101,7 @@ class iCloudIMAPService:
                 imaplib.Time2Internaldate(time.time()),
                 msg.as_bytes()
             )
-            print("[IMAP] Draft successfully saved to iCloud! 🎉 (Check your Apple Mail app)")
+            print("[IMAP] Draft successfully saved to iCloud! (Check your Apple Mail app)")
 
         except Exception as e:
             print(f"[IMAP] Error uploading the draft: {e}")

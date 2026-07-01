@@ -5,10 +5,10 @@ from services.imap_service import iCloudIMAPService
 from agents.mail_graph import build_mail_graph
 
 def main():
-    print("=== 🤖 AI MAIL ARCHITECT STARTED ===")
+    print("=== AI MAIL ARCHITECT STARTED ===")
 
     if not os.getenv("ICLOUD_EMAIL") or not os.getenv("ICLOUD_APP_PASSWORD"):
-        print("❌ ERROR: ICLOUD_EMAIL or ICLOUD_APP_PASSWORD is not set!")
+        print("ERROR: ICLOUD_EMAIL or ICLOUD_APP_PASSWORD is not set!")
         print("Set env vars in an .env file or run in your terminal:")
         print("export ICLOUD_EMAIL='your@mail.com'")
         print("export ICLOUD_APP_PASSWORD='xxxx-xxxx-xxxx-xxxx'")
